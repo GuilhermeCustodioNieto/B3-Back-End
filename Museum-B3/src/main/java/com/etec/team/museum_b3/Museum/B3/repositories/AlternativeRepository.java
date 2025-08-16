@@ -1,4 +1,7 @@
 package com.etec.team.museum_b3.Museum.B3.repositories;
 
-public interface AlternativeRepository {
+import com.etec.team.museum_b3.Museum.B3.entities.Alternative;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AlternativeRepository extends JpaRepository<Alternative, Long> {
 }
