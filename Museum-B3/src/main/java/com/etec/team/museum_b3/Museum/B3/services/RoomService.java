@@ -85,7 +85,7 @@ public class RoomService {
                 room.getQuiz().getQuestions().size(),
                 question.getTimeLimitSec()
         );
-        messaging.convertAndSend("/topic.rooms/"+room.getCode(), event);
+        messaging.convertAndSend("/topic/rooms/"+room.getCode(), event);
 
         cancelTimer(room);
         room.setCurrentTimer(scheduler.schedule(() -> {

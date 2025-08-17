@@ -21,8 +21,8 @@ public class Question {
     @Column
     private String text;
 
-    @Column
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "question_id")
     private List<Alternative> alternatives = new ArrayList<>();
 
     @ManyToOne

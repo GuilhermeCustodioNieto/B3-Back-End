@@ -18,7 +18,7 @@ public class MuseumData {
     @Column
     private String title;
 
-    @Column(length = 200)
+    @Column(length = 2000)
     private String text;
 
     @Column

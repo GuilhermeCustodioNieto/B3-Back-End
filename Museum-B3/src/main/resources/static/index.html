@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Museu B3 - Quiz</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h1>Museu B3 - Quiz</h1>
+
+<div>
+  <h2>Criar Sala</h2>
+  <input type="text" id="hostName" placeholder="Seu nome">
+  <button onclick="createRoom()">Criar Sala</button>
+  <p id="createdRoomCode"></p>
+</div>
+
+<div>
+  <h2>Entrar em Sala</h2>
+  <input type="text" id="roomCodeJoin" placeholder="Código da sala">
+  <input type="text" id="usernameJoin" placeholder="Seu nome">
+  <button onclick="joinRoom()">Entrar</button>
+</div>
+
+<div>
+  <h2>Iniciar Quiz</h2>
+  <input type="text" id="roomCodeStart" placeholder="Código da sala">
+  <button onclick="startQuiz()">Iniciar Quiz</button>
+</div>
+
+<div>
+  <h2>Quiz</h2>
+  <div id="questionArea" style="display:none;">
+    <p id="questionText"></p>
+    <div id="alternatives"></div>
+  </div>
+</div>
+
+<div>
+  <h2>Placar</h2>
+  <ul id="scoreboard"></ul>
+</div>
+
+<script>
+  let stompClient = null;
+  let currentRoomCode = null;
+  let username = null;
+
+  function connectWebSocket(roomCode) {
+      const socket = new SockJS('/ws');
+      stompClient = Stomp.over(socket);
+      stompClient.connect({}, function(frame) {
+          console.log('Conectado: ' + frame);
+          stompClient.subscribe(`/topic/rooms/${roomCode}`, function(message) {
+              const data = JSON.parse(message.body);
+              handleEvent(data);
+          });
+      });
+  }
+
+  function handleEvent(event) {
+      if(event.type === "PLAYER_JOINNED") {
+          alert(`Jogador entrou: ${event.username}`);
+      }
+      else if(event.type === "QUESTION") {
+          showQuestion(event);
+      }
+      else if(event.type === "SCOREBOARD") {
+          showScoreboard(event.scores);
+          if(event.finished) {
+              alert("Quiz finalizado!");
+              document.getElementById("questionArea").style.display = "none";
+          }
+      }
+  }
+
+  function showQuestion(questionEvent) {
+      document.getElementById("questionArea").style.display = "block";
+      document.getElementById("questionText").innerText =
+          `Questão ${questionEvent.index}/${questionEvent.total}: ${questionEvent.text}`;
+
+      const altDiv = document.getElementById("alternatives");
+      altDiv.innerHTML = "";
+      questionEvent.alternatives.forEach(alt => {
+          const btn = document.createElement("button");
+          btn.innerText = alt.text;
+          btn.onclick = () => sendAnswer(alt.format);
+          altDiv.appendChild(btn);
+      });
+  }
+
+  function showScoreboard(scores) {
+      const board = document.getElementById("scoreboard");
+      board.innerHTML = "";
+      for(const [player, score] of Object.entries(scores)) {
+          const li = document.createElement("li");
+          li.innerText = `${player}: ${score}`;
+          board.appendChild(li);
+      }
+  }
+
+  async function createRoom() {
+      username = document.getElementById('hostName').value;
+      const res = await fetch('/api/rooms', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({hostName: username})
+      });
+      const data = await res.json();
+      currentRoomCode = data.code;
+      document.getElementById('createdRoomCode').innerText = `Código da Sala: ${currentRoomCode}`;
+      connectWebSocket(currentRoomCode);
+  }
+
+  async function joinRoom() {
+      currentRoomCode = document.getElementById('roomCodeJoin').value;
+      username = document.getElementById('usernameJoin').value;
+      await fetch('/api/rooms/join', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({code: currentRoomCode, username})
+      });
+      connectWebSocket(currentRoomCode);
+      alert('Entrou na sala!');
+  }
+
+  async function startQuiz() {
+      const code = document.getElementById('roomCodeStart').value;
+      await fetch('/api/rooms/start', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({code})
+      });
+      alert('Quiz iniciado!');
+  }
+
+  function sendAnswer(format) {
+      if(!stompClient || !stompClient.connected) return;
+      stompClient.send(`/app/rooms/${currentRoomCode}/answer`, {},
+          JSON.stringify({username, format}));
+  }
+
+</script>
+</body>
+</html>
