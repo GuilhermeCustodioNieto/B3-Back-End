@@ -26,7 +26,13 @@ public class Question {
     private List<Alternative> alternatives = new ArrayList<>();
 
     @ManyToOne
+    @JoinColumn(name = "answer_id")
     private Alternative answer;
+
+    @ManyToOne
+    @JoinColumn(name = "quiz_id") 
+    private Quiz quiz;
+
 
     private int timeLimitSec = 15;
 
