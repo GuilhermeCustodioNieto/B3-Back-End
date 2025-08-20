@@ -11,3 +11,4 @@ spring:
       hibernate.jdbc.time_zone: UTC
 server:
   port: 8080
+

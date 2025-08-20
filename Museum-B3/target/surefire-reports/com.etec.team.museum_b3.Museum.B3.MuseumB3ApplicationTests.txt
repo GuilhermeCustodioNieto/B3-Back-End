@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.etec.team.museum_b3.Museum.B3.MuseumB3ApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.786 s -- in com.etec.team.museum_b3.Museum.B3.MuseumB3ApplicationTests
