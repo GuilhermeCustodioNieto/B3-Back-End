@@ -1,6 +1,7 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-d2joae63jp1c73fc7mq0-a:5432/quizb3
+    url: jdbc:postgresql://dpg-d2joae63jp1c73fc7mq0-a.oregon-postgres.render.com:5432/quizb3
+
     username: user
     password: Yy5HVgHBML0mbFVHdYVBcCJvq6dAjx0s
   jpa:
