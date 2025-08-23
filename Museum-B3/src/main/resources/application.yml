@@ -4,6 +4,13 @@ spring:
 
     username: user
     password: Yy5HVgHBML0mbFVHdYVBcCJvq6dAjx0s
+
+    hikari:
+      max-lifetime: 600000      # 10 minutos (abaixo do timeout do Render)
+      idle-timeout: 300000      # 5 minutos
+      connection-timeout: 20000 # 20s para tentar pegar conexão
+      minimum-idle: 1
+      maximum-pool-size: 5
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,4 +19,5 @@ spring:
       hibernate.jdbc.time_zone: UTC
 server:
   port: 8080
+
 
